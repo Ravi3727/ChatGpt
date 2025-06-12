@@ -1,0 +1,16 @@
+import { z } from "zod";
+
+export const chatDataSchema = z.object({
+  question: z.string({
+    required_error: "Question is required",
+  }),
+  answers: z.string().optional(),
+});
+
+export const chatsSchema = z.object({
+  userId: z.string({
+    required_error: "UserId is required",
+  }),
+  chatData: z.array(chatDataSchema),
+  createdAt: z.date().optional(), 
+});

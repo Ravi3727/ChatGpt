@@ -1,42 +1,14 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "tailwindcss";
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+@theme {
+    /* --color-customDark: #212120; */
+    --color-customDark: #212121;
+    --color-customLightBlack: #171717;
+    --color-chatBoxColor: #303030;
+    --color-hoverEffect: #515151;
+    --color-chatColor: #323232;
+    --color-hoverOnTopCard: #323232;
+    --color-sideBarChat: #8F8F8F;
+    --color-navbarChatGptText: #666666;
+    --color-addFilesHover: #353535;
 }
