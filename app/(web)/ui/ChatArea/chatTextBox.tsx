@@ -13,9 +13,10 @@ import GoogleDriveSvg from '@/app/svg/googleDriveSvg'
 import CloudeSvg from '@/app/svg/cloudSvg'
 import VoiceInputSvg from '@/app/svg/voiceInputSvg'
 import axios from 'axios';
-import {chatDataSchema} from '@/app/packages/mongoDb/zod/chatShema';
+import { chatDataSchema } from '@/app/packages/mongoDb/zod/chatShema';
 import SendButtonArrowSvg from '@/app/svg/sendButtonArrowSvg'
 import { useUser } from '@clerk/nextjs'
+import { useParams } from 'next/navigation'
 function ChatTextBox() {
   const { chats, setChats }: any = useContext(ChatContext);
   const [input, setInput] = useState('');
@@ -25,37 +26,38 @@ function ChatTextBox() {
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [showAppsMenu, setShowAppsMenu] = useState(false);
   const { isSignedIn, user } = useUser();
-
-const handleSend = async () => {
-  if (!input.trim()) return;
-  if( !isSignedIn) {
-    console.error("User is not signed in or user data is not loaded");
-    return;
-  }
-  console.log("User ID:", user?.id);
-  const result = chatDataSchema.safeParse({ question: input });
-
-  if (!result.success) {
-    console.error("Validation Error:", result.error.format());
-    return; 
-  }
-  try {
-    const res = await axios.post('/api/chat', { question: input ,userId: user?.id});
-
-    if (res.status === 200) {
-      const newChat = {
-        question: input,
-        answer: res.data.answer,
-        id: Date.now().toString(),
-      };
-      setChats([...chats, newChat]);
-      setInput('');
+  const params = useParams();
+  const chatId = params.chatId;
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    if (!isSignedIn) {
+      console.error("User is not signed in or user data is not loaded");
+      return;
     }
-  } catch (error) {
-    console.error('Error sending message:', error);
-    // Optionally, show an error message to the user
-  }
-};
+    console.log("User ID:", user?.id);
+    const result = chatDataSchema.safeParse({ question: input });
+
+    if (!result.success) {
+      console.error("Validation Error:", result.error.format());
+      return;
+    }
+    try {
+      const res = await axios.post('/api/addChat', { question: input, userId: user?.id, chatId: chatId || undefined});
+
+      if (res.status === 200) {
+        const newChat = {
+          question: input,
+          answer: res.data.answer,
+          id: Date.now().toString(),
+        };
+        setChats([...chats, newChat]);
+        setInput('');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Optionally, show an error message to the user
+    }
+  };
 
 
   useEffect(() => {
@@ -218,15 +220,15 @@ const handleSend = async () => {
                 <Mic size={20} />
               </button>
               <div className='hover:cursor-pointer'>
-               { 
-               input.trim().length > 0 ? 
-               <div className='bg-white rounded-full p-2 '
-                onClick={handleSend}>
-                <SendButtonArrowSvg/>
-               </div>:
-               <div className="text-white hover:bg-navbarChatGptText bg-hoverEffect p-2 rounded-full">
-                  <VoiceInputSvg />
-               </div>
+                {
+                  input.trim().length > 0 ?
+                    <div className='bg-white rounded-full p-2 '
+                      onClick={handleSend}>
+                      <SendButtonArrowSvg />
+                    </div> :
+                    <div className="text-white hover:bg-navbarChatGptText bg-hoverEffect p-2 rounded-full">
+                      <VoiceInputSvg />
+                    </div>
                 }
               </div>
             </div>

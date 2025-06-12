@@ -12,5 +12,6 @@ export const chatsSchema = z.object({
     required_error: "UserId is required",
   }),
   chatData: z.array(chatDataSchema),
+    title: z.string().optional().default("Chat"),
   createdAt: z.date().optional(), 
 });

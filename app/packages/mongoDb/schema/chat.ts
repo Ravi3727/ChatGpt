@@ -9,9 +9,15 @@ export interface Chats extends Document {
     userId: string;
     chatData: ChatData[];
     createdAt: Date;
+    title: string;
 }
 
 const ChatsSchema: Schema<Chats> = new mongoose.Schema({
+    title:{
+        type: String,
+        required: [true, "Title is required"],
+        default: "Chat"
+    },
     userId: {
         type: String,
         required: [true, "UserId is required"]

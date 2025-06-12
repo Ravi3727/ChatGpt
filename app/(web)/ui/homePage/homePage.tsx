@@ -1,27 +1,39 @@
 'use client'
-import React, { createContext, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo, useState } from 'react'
 import Navbar from '../navbar/navbar'
 import DisplayChats from '../ChatArea/displayChats'
 import ChatTextBox from '../ChatArea/chatTextBox'
+import { useParams } from 'next/navigation'
 
 
 export const ChatContext = createContext();
 
 function HomePage() {
   const [chats, setChats] = useState([]);
-  const chatContextValue = useMemo(() => ({ chats, setChats }), [chats]);
+  const params = useParams();
 
+
+  useEffect(() => {
+    let id = params.chatId;
+    console.log('Params chatId:', id);
+    if (Array.isArray(id)) id = id[0];
+    console.log('Chat ID from params:', id);
+    localStorage.setItem('chatId', id);
+  }, [params.chatId]);
+
+
+  const chatContextValue = useMemo(() => ({ chats, setChats }), [chats]);
   const hasChats = chats.length > 0;
 
   return (
     <ChatContext.Provider value={chatContextValue}>
       <div className="min-h-screen flex flex-col p-2 bg-customDark">
         <div className="h-10 flex items-center justify-center text-white">
-          <Navbar/>
+          <Navbar />
         </div>
 
         <div className={`flex-1 mt-4 px-4 ${hasChats ? 'flex flex-col justify-between' : 'flex items-center justify-center flex-col gap-4'}`}>
-          {hasChats ? (
+          {true ? (
             <div className="flex-1 overflow-y-auto w-full p-3 rounded-xl">
               <DisplayChats />
             </div>
