@@ -43,3 +43,31 @@ export async function generateTitle(question: string) {
 
   return { text, finishReason, usage };
 }
+
+
+export const imageDataChat = async (
+  imageUrl: string,
+  question: string
+) => {
+  
+  // console.log("Image URL:", imageUrl);
+  // console.log("Question:", question);
+  const { text } = await generateText({
+    model: google('models/gemini-2.0-flash-exp'),
+    system:question,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "image",
+            image: new URL(imageUrl),
+          },
+        ],
+      },
+    ],
+  });
+
+  // console.log("Image Data Response:", text);
+  return text;
+};

@@ -15,7 +15,7 @@ import DownArrowSvg from '@/app/svg/downArrowSvg'
 function Navbar() {
     const [showDropdown, setShowDropdown] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
-    const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+    const [isMobile, setIsMobile] = React.useState();
 
     React.useEffect(() => {
         const handleResize = () => {

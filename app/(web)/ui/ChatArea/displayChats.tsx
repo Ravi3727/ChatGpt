@@ -8,6 +8,7 @@ import EditChatBox from './EditChatBox';
 import clsx from 'clsx';
 import { ChatContext } from '../homePage/homePage'
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 function DisplayChats() {
   const router = useRouter();
@@ -37,7 +38,7 @@ function DisplayChats() {
       const chatsMapRaw = localStorage.getItem("chatsMap");
       const chatsMap = chatsMapRaw ? JSON.parse(chatsMapRaw) : {};
       const latestChats = chatsMap[storedChatId] || [];
-       
+
 
       if (JSON.stringify(latestChats) !== JSON.stringify(allChats)) {
         setChats(latestChats);
@@ -97,7 +98,7 @@ function DisplayChats() {
                 <EditChatBox
                   question={chat.question}
                   messageId={chat._id}
-                  handleChatId={handleChatId} 
+                  handleChatId={handleChatId}
                   chatId={storedChatId || ''}
                 />
               </div>
@@ -107,6 +108,11 @@ function DisplayChats() {
                   'bg-chatBoxColor overflow-y-auto max-w-[75%] w-fit rounded-2xl md:rounded-3xl text-start px-3 md:px-4 py-1 md:py-2 ml-auto break-words text-sm md:text-base',
                 )}
               >
+                {
+                  chat.fileUrls && <div>
+                    <img src={chat.fileUrls} alt={chat._id} />
+                  </div>
+                }
                 <div>{chat.question}</div>
               </div>
             )}

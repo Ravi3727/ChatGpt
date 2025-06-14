@@ -18,12 +18,12 @@ import SendButtonArrowSvg from '@/app/svg/sendButtonArrowSvg'
 import { useUser } from '@clerk/nextjs'
 import { useParams } from 'next/navigation'
 import { useEditChats } from './EditChatsContext'
-import { generate, generateTitle } from "./generateResponse";
+import { generate, generateTitle, imageDataChat } from "./generateResponse";
 import { readStreamableValue } from 'ai/rsc';
 import { useRouter } from 'next/navigation';
 import { set } from 'mongoose'
+// import { uploadOnCloudinary } from  '@/app/packages/cloudinary/uploadOnCloudinary';
 // Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
 
 function ChatTextBox() {
   const router = useRouter();
@@ -45,7 +45,7 @@ function ChatTextBox() {
     if (!input.trim()) return;
 
     if (!isSignedIn) {
-      console.error("User is not signed in or user data is not loaded");
+      // console.error("User is not signed in or user data is not loaded");
       return;
     }
 
@@ -57,12 +57,10 @@ function ChatTextBox() {
 
     let currentChatId = chatId || 'new';
 
-    // ✅ Get the current localStorage map
     const chatsMapRaw = localStorage.getItem('chatsMap');
     const chatsMap = chatsMapRaw ? JSON.parse(chatsMapRaw) : {};
     const currentChatHistory = chatsMap[currentChatId] || [];
 
-    // 🔄 Construct context from all previous chats
     const contextMessages = currentChatHistory.flatMap(chat => [
       { role: 'user', content: chat.question },
       { role: 'assistant', content: chat.answer },
@@ -73,39 +71,51 @@ function ChatTextBox() {
     let generatedAnswer = '';
 
     try {
-      const { output } = await generate(contextMessages);
+
+      // const question = `Explain this image in 3 words `;
+      const formData = new FormData();
+      files.forEach((file, index) => {
+        formData.append(`file`, file);
+      });
+      setFiles([]);
+
+
       const { text } = await generateTitle(input);
-
-      for await (const delta of readStreamableValue(output)) {
-        generatedAnswer += delta;
-        setGeneration(current => current + delta);
+      let ImageURL;
+      if (formData) {
+        const res = await axios.post('/api/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        ImageURL = res.data.url;
+        const result = await imageDataChat(res.data.url, input);
+        generatedAnswer = result;
+      } else {
+        const { output } = await generate(contextMessages);
+        for await (const delta of readStreamableValue(output)) {
+          generatedAnswer += delta;
+          setGeneration(current => current + delta);
+        }
       }
-
-
 
       let finalChatId = currentChatId;
 
-      // 🆕 Case: create a new chat first
-      let newChat = {
-        question: input,
-        answer: generatedAnswer,
-        questionId: ''
-      };
 
-
+      // console.log("frmdata", formData, files);
       if (currentChatId === 'new') {
         const createRes = await axios.post(`/api/addChat`, {
           chatId: 'new',
           userId: user.id,
           question: input,
           answer: generatedAnswer,
-          title: text
+          title: text,
+          fileUrls: ImageURL
         });
-
+        console.log("res frrrokfke", createRes.data);
         const createdChat = createRes.data.newChat;
         finalChatId = createdChat._id;
 
-        // ✅ Save chatData exactly as received
         const fullChatData = createdChat.chatData;
 
         chatsMap[finalChatId] = fullChatData;
@@ -113,24 +123,23 @@ function ChatTextBox() {
         setChats(fullChatData);
         setInput('');
 
-        // Optional: update URL if needed
         router.push(`/${finalChatId}`);
 
         return;
       }
       else {
-        // ✅ Update existing chat
         const res = await axios.post(`/api/addChat`, {
           chatId: currentChatId,
           userId: user.id,
           question: input,
           answer: generatedAnswer,
-          title: text
+          title: text,
+          fileUrls: ImageURL
         });
 
+        console.log("res wfee", res.data);
+        const updatedChat = res.data.updatedChats.chatData.at(-1);
 
-        const updatedChat = res.data.updatedChats.chatData.at(-1); // New message just appended
-        // console.log("Response from addChat API:", res.data);
         const updatedChatList = [...(chatsMap[finalChatId] || []), updatedChat];
         chatsMap[finalChatId] = updatedChatList;
 
@@ -183,22 +192,21 @@ function ChatTextBox() {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  
+
   return (
     <div className="w-full px-4 md:pb-4 md:pt-2 pb-2 pt-1 bottom-0 z-10">
       <div className="md:max-w-3xl w-full mx-auto  bg-chatBoxColor rounded-2xl md:px-4 md:py-2 px-2 py-1 shadow-lg">
-
         <div className="mt-4 flex flex-wrap gap-4">
           {files.map((file, idx) =>
             isImage(file) ? (
               <div key={idx} className="w-16 h-16 rounded-xl overflow-hidden border">
                 <button
-                onClick={() => removeFile(idx)}
-                className="absolute top-1 right-1 bg-green bg-opacity-100 text-white rounded-full w-10 h-10 text-xl flex items-center justify-center z-100"
-                title="Remove"
-              >
-                clear
-              </button>
+                  onClick={() => removeFile(idx)}
+                  className="absolute top-1 right-1 bg-green bg-opacity-100 text-white rounded-full w-10 h-10 text-xl flex items-center justify-center z-100"
+                  title="Remove"
+                >
+                  clear
+                </button>
                 <img
                   src={URL.createObjectURL(file)}
 
@@ -212,12 +220,12 @@ function ChatTextBox() {
                 className="flex items-center gap-2 p-2 border rounded-md text-xs bg-gray-100"
               >
                 <button
-                onClick={() => removeFile(idx)}
-                className="absolute top-1 right-1 bg-black bg-opacity-100 text-white rounded-full w-10 h-10 text-xl flex items-center justify-center z-100"
-                title="Remove"
-              >
-                clear
-              </button>
+                  onClick={() => removeFile(idx)}
+                  className="absolute top-1 right-1 bg-black bg-opacity-100 text-white rounded-full w-10 h-10 text-xl flex items-center justify-center z-100"
+                  title="Remove"
+                >
+                  clear
+                </button>
                 📄 {file.name}
               </div>
             )
@@ -227,7 +235,6 @@ function ChatTextBox() {
 
 
         <div className="flex flex-col">
-          {/* Auto-resizing textarea */}
           <div className="relative w-full">
             <textarea
               ref={textareaRef}
@@ -247,8 +254,6 @@ function ChatTextBox() {
               className="w-full max-h-[50px] md:max-h-[200px] md:min-h-10 p-1 md:p-2 overflow-y-auto resize-none bg-transparent outline-none text-white placeholder-gray-400 text-md"
             />
           </div>
-
-          {/* Toolbar row */}
 
           {editingChatId ? <div className='w-32 ml-auto z-50'>
             <div className='flex gap-1 md:gap-3 text-gray-400 mt-2 ml-auto'>
@@ -272,7 +277,6 @@ function ChatTextBox() {
                   <Plus size={20} />
                 </button>
 
-                {/* Plus Button Dropdown */}
                 {showPlusMenu && (
                   <div className={`absolute ${chats.length > 0 ? "bottom-10" : "top-12"} left-0 bg-[#353535] text-white rounded-2xl p-1 md:p-2 shadow-xl w-48 md:w-64 z-50`}>
                     <div
@@ -295,12 +299,11 @@ function ChatTextBox() {
                       className="hover:bg-hoverEffect p-1 md:p-2 rounded-lg cursor-pointer text-sm"
                     >
                       <label className="flex items-center gap-1 md:gap-2 cursor-pointer">
-                        {/* Hidden file input */}
                         <input
                           type="file"
                           accept="image/*, .pdf, .doc, .docx, .txt, .csv, .xlsx, .pptx, .zip"
                           multiple
-                          onChange={handleFileChange}  // You should define this function
+                          onChange={handleFileChange} 
                           className="hidden"
                         />
 
@@ -313,9 +316,8 @@ function ChatTextBox() {
                       </label>
                     </div>
 
-                    {/* Nested Submenu  absolute left-64 top-0 bg-[#353535] text-white rounded-2xl p-2 shadow-xl w-72  z-50*/}
                     {showAppsMenu && (
-                      <div className="absolute left:48 md:bottom-0 md:left-64 -md:top-0 bg-[#353535] text-white 
+                      <div className="absolute left:48 md:bottom-0 md:left-64 md:top-0 bg-[#353535] text-white 
                       rounded-2xl p-1 md:p-2 shadow-xl w-60 md:w-72 z-50">
                         <div className="hover:bg-hoverEffect p-1 md:p-2 rounded-lg cursor-pointer text-sm">
                           <div className='flex items-center gap-1 md:gap-2'>
@@ -370,7 +372,6 @@ function ChatTextBox() {
                   <span className="text-sm hidden sm:inline">Tools</span>
                 </button>
 
-                {/* Dropdown Menu */}
                 {showTools && (
                   <div className={`absolute ${chats.length > 0 ? "bottom-10" : "top-12"} left-12 bg-[#2b2b2b] text-white rounded-2xl p-1 md:p-3 shadow-b-xl w-48 md:w-64 z-50 space-y-1 md:space-y-2 text-xs md:text-sm`}>
                     <ToolItem label="Create an image" icon={CreateAnImage} />

@@ -4,12 +4,14 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface ChatData {
     question: string;
     answers: string;
+    fileUrls?: string;
 }
 export interface Chats extends Document {
     userId: string;
     chatData: ChatData[];
     createdAt: Date;
     title: string;
+
 }
 
 const ChatsSchema: Schema<Chats> = new mongoose.Schema({
@@ -31,6 +33,10 @@ const ChatsSchema: Schema<Chats> = new mongoose.Schema({
             type: String,
             required: [false, "Statement of question is required"],
         },
+        fileUrls: {
+            type: String,
+            default: '',
+        }
     }],
     createdAt: {
         type: Date,

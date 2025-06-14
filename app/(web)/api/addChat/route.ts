@@ -6,9 +6,10 @@ import { z } from "zod";
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
-    const { title, userId, question, chatId, answer } = await request.json();
+    const { title, userId, question, chatId, answer,fileUrls } = await request.json();
     // console.log("Received data:", { title, userId, question, chatId, answer });
     // Validate inputs  
+    console.log("Received data: backend ", fileUrls );
     if (!userId || !question || !answer) {
       return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400 });
     }
@@ -16,17 +17,19 @@ export async function POST(request: NextRequest) {
     const chatDataSchema = z.object({
       question: z.string().min(1, "Question is required"),
       answer: z.string().min(1, "Answer is required"),
+      fileUrls: z.string().optional()
     });
 
-    const parsedData = chatDataSchema.safeParse({ question, answer: answer });
+    const parsedData = chatDataSchema.safeParse({ question, answer: answer , fileUrls });
     if (!parsedData.success) {
       return new Response(JSON.stringify({ error: "Validation failed", details: parsedData.error.format() }), { status: 400 });
     }
 
     const chatData = parsedData.data;
-    console.log("Parsed chat data:", chatData);
+    // console.log("Parsed chat data:", chatData);
     // If chatId is "new" or not provided, create a new chat
     if (!chatId || chatId === 'new' || chatId === undefined) {
+
       const newChat = await Chat.create({
         userId,
         title: title,
@@ -40,6 +43,7 @@ export async function POST(request: NextRequest) {
 
     if (!existingChat) {
       // If chatId was given but no chat exists, create a new one
+
       const newChat = await Chat.create({
         userId,
         title: title,
