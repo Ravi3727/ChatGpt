@@ -3,16 +3,19 @@ import ChatFeatures from '../sidebar/chatFeatures'
 import PreviousChats from '../sidebar/previousChats'
 
 function Sidebar() {
-  return (
-    <div className='text-white flex flex-col '>
-      <div>
-        <ChatFeatures/>
-      </div>
 
-      <div>
-        <PreviousChats/>
+
+  return (
+    <>
+      <div className='text-white flex flex-col '>
+        <div>
+          <ChatFeatures />
+        </div>
+        <div className=''>
+          <PreviousChats />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -1,53 +1,63 @@
-// app/api/chat/[chatId]/route.ts
 import { dbConnect } from "@/app/packages/mongoDb/dbConfig";
-import { NextResponse } from "next/server";
 import Chat from "@/app/packages/mongoDb/schema/chat";
+import { NextRequest } from "next/server";
+import { z } from "zod";
 
-
-// ✅ POST: Add or update a chat
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await dbConnect();
-    const { userId, question, chatId } = await request.json();
-
-    if (!userId || !question) {
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    const { title, userId, question, chatId, answer } = await request.json();
+    // console.log("Received data:", { title, userId, question, chatId, answer });
+    // Validate inputs  
+    if (!userId || !question || !answer) {
+      return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400 });
     }
 
-    const answers = "This is a static answer from the API";
-    const title = "Chat Title"; 
+    const chatDataSchema = z.object({
+      question: z.string().min(1, "Question is required"),
+      answer: z.string().min(1, "Answer is required"),
+    });
 
-    if (chatId) {
-      const updatedChat = await Chat.findByIdAndUpdate(
-        chatId,
-        { $push: { chatData: { question, answers } } },
-        { new: true }
-      );
+    const parsedData = chatDataSchema.safeParse({ question, answer: answer });
+    if (!parsedData.success) {
+      return new Response(JSON.stringify({ error: "Validation failed", details: parsedData.error.format() }), { status: 400 });
+    }
 
-      if (!updatedChat) {
-        return NextResponse.json({ error: "Chat not found" }, { status: 404 });
-      }
-
-      return NextResponse.json(
-        { message: "Message added to existing chat", chat: updatedChat },
-        { status: 200 }
-      );
-    } else {
-      const newChat = new Chat({
-        title,
+    const chatData = parsedData.data;
+    console.log("Parsed chat data:", chatData);
+    // If chatId is "new" or not provided, create a new chat
+    if (!chatId || chatId === 'new' || chatId === undefined) {
+      const newChat = await Chat.create({
         userId,
-        chatData: [{ question, answers }],
+        title: title,
+        chatData: [chatData],
       });
-
-      const savedChat = await newChat.save();
-
-      return NextResponse.json(
-        { message: "New chat created", chat: savedChat },
-        { status: 201 }
-      );
+      return new Response(JSON.stringify({ newChat }), { status: 201 });
     }
+
+    // Check if chat exists
+    const existingChat = await Chat.findById(chatId);
+
+    if (!existingChat) {
+      // If chatId was given but no chat exists, create a new one
+      const newChat = await Chat.create({
+        userId,
+        title: title,
+        chatData: [chatData],
+      });
+      return new Response(JSON.stringify({ newChat }), { status: 201 });
+    }
+
+    // If chat exists, push new chat data
+    const updatedChats  = await Chat.findByIdAndUpdate(
+      chatId,
+      { $push: { chatData } },
+      { new: true }
+    );
+
+    return new Response(JSON.stringify({ updatedChats }), { status: 200 });
   } catch (error) {
-    console.error("Error processing chat:", error);
-    return NextResponse.json({ error: "Failed to process chat" }, { status: 500 });
+    console.error("Error in chat API:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 }

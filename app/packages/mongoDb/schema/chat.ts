@@ -27,7 +27,7 @@ const ChatsSchema: Schema<Chats> = new mongoose.Schema({
             type: String,
             required: [true, "Question is required"],
         },
-        answers: {
+        answer: {
             type: String,
             required: [false, "Statement of question is required"],
         },
@@ -42,6 +42,6 @@ const ChatsSchema: Schema<Chats> = new mongoose.Schema({
     });
 
 
-const ChatsModel = (mongoose.models.Problem as mongoose.Model<Chats>) || mongoose.model<Chats>("Chats", ChatsSchema);
+const ChatsModel = (mongoose.models.Problem as mongoose.Model<Chats>) || mongoose.model<Chats>("Chat", ChatsSchema);
 
 export default ChatsModel;

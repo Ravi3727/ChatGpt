@@ -12,3 +12,7 @@
     --color-navbarChatGptText: #666666;
     --color-addFilesHover: #353535;
 }
+/* width */
+::-webkit-scrollbar {
+  width: 0px;
+}

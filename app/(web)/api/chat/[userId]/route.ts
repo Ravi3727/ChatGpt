@@ -4,12 +4,10 @@ import { NextResponse } from "next/server";
 import Chat from "@/app/packages/mongoDb/schema/chat";
 
 
-// ✅ GET: All chats for a specific user
-export async function GET(request: Request,{params}: { params: { userId: string } }) {
+export async function GET(request: Request, { params }: { params: { userId: string } }) {
   try {
     await dbConnect();
-    const userId =  params.userId;
-    console.log("User ID from search params:", userId);
+    const {userId} = await params;
 
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
@@ -23,3 +21,4 @@ export async function GET(request: Request,{params}: { params: { userId: string 
     return NextResponse.json({ error: "Failed to fetch chats" }, { status: 500 });
   }
 }
+

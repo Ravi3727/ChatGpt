@@ -4,7 +4,7 @@ export const chatDataSchema = z.object({
   question: z.string({
     required_error: "Question is required",
   }),
-  answers: z.string().optional(),
+  answer: z.string().optional(),
 });
 
 export const chatsSchema = z.object({
