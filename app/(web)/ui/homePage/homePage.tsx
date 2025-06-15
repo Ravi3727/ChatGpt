@@ -42,7 +42,7 @@ function HomePage() {
   }, [params.chatId])
 
   const chatContextValue = useMemo(() => ({ chats, setChats }), [chats])
-  const hasChats = chats.length > 0
+
 
   return (
     <ChatContext.Provider value={chatContextValue}>

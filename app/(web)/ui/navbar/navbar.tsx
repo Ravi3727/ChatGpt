@@ -90,7 +90,7 @@ function Navbar() {
         <div className="relative group">
           <CircleAlert size={16} />
           <div className="absolute top-5 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-black text-white text-xs px-3 py-2 rounded shadow-lg w-78 text-center">
-            ChatGPT's out of space for saved memories.{" "}
+            ChatGPT&apos;s out of space for saved memories.{" "}
             <span className="underline cursor-pointer">Manage saved memories</span> to create more space.
           </div>
         </div>
