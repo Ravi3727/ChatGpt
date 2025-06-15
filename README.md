@@ -1,36 +1,203 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### ChatGPT Low Level Design - Production Grade Clone  
+#### A fully functional, production-grade, pixel-perfect ChatGPT clone built from scratch without AI assistance in development (used only for learning and writing this README 😅) — built to demonstrate architectural, backend, and frontend design expertise.  
 
-## Getting Started
+Live Demo: https://chat-gpt-gamma-five-82.vercel.app  
 
-First, run the development server:
+#### ✅ Features 
+✨ Pixel-perfect ChatGPT-style UI 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+💬 Real-time Chat powered by Vercel AI SDK (model: gemini-2.0-flash-exp) 
+
+🧠 Chat Memory Management 
+
+🖼️ File & Image Upload (Cloudinary integration) 
+ 
+✍️ Message Editing Support 
+
+🔒 Clerk Authentication 
+
+📦 MongoDB backend with modular Express.js API 
+
+☁️ Deployed on Vercel with fully configured environment 
+
+🧱 Clean, modular, monorepo-style codebase architecture  
+
+#### 📁 Folder Structure  
+``` 
+├── app/                   # Frontend (Next.js App Router)  
+│   ├── (web)/             # Pages & Layouts  
+│   ├── components/        # Reusable UI components 
+│   ├── lib/               # Utilities (e.g., file upload, validators) 
+│   └── ui/                # UI building blocks (chat box, sidebar etc.) 
+├── backend/               # Express.js backend API 
+│   ├── routes/            # Route handlers 
+│   ├── controllers/       # Request logic 
+│   ├── models/            # MongoDB Schemas 
+│   └── utils/             # Cloudinary, multer, DB config 
+├── public/                # Static assets 
+├── .env.example           # Sample environment file 
+└── README.md              # This file
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### 🧪 Technologies Used  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Category           | Stack                                           |  
+| ------------------ | ----------------------------------------------- |    
+| **Frontend**       | Next.js (App Router), TailwindCSS, Lucide-react | 
+| **Backend**        | Node.js, Express.js                             | 
+| **Database**       | MongoDB (Mongoose)                              | 
+| **Authentication** | Clerk                                           | 
+| **Validation**     | Zod                                             | 
+| **File Upload**    | Multer, Cloudinary                              | 
+| **AI Integration** | Vercel AI SDK + Gemini 2.0 Flash Exp            | 
+```
 
-## Learn More
+#### 🔌 Backend Routes  
 
-To learn more about Next.js, take a look at the following resources:
+##### 1. POST /api/addChat 
+Adds a new chat or updates an existing one. 
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Payload: 
+ 
+``` 
+{ 
+  "title": "My first chat", 
+  "userId": "user_xyz", 
+  "question": "What is LLD?", 
+  "chatId": "new", // or existing chatId 
+  "answer": "LLD is...", 
+  "fileUrls": ["https://cloudinary.com/abc.png"] 
+} 
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+##### 2. GET /api/chat/[userId] 
+Fetch all chats for a specific user. 
 
-## Deploy on Vercel
+Params: userId 
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+##### 3. POST /api/editChat 
+Update a specific message in a chat. 
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Payload: 
+``` 
+{ 
+  "chatId": "chat_xyz", 
+  "messageId": "msg_abc", 
+  "question": "Updated question?", 
+  "answer": "Updated answer.", 
+  "title": "Updated Chat Title" 
+}  
+```
+
+##### 4. GET /api/getChatByChatId 
+Get full chat data by chatId. 
+
+Params: chatId 
+
+5. POST /api/upload 
+Upload image/file to Cloudinary. 
+
+Payload: multipart/form-data 
+Return: Cloudinary file URL 
+
+
+##### 🧬 MongoDB Schema (Chat Collection) 
+Each document in the Chat collection contains: 
+
+``` 
+{ 
+  _id: ObjectId, 
+  userId: String, 
+  title: String, 
+  chatId: String, 
+  messages: [ 
+    { 
+      messageId: String, 
+      question: String, 
+      answer: String, 
+      fileUrls: [String] 
+    } 
+  ], 
+  createdAt: Date, 
+  updatedAt: Date 
+}   
+```
+
+##### 🛠️ Local Setup Instructions 
+
+1. Clone the Repository
+``` 
+git clone https://github.com/Ravi3727/ChatGpt.git  
+cd chatgpt-clone 
+```
+
+#### 2. Install Dependencies  
+ 
+``` 
+pnpm install 
+```
+
+##### 3. Set Up Environment Variables  
+Create a .env file in the root using .env.example as reference. Fill in: 
+
+``` 
+MONGODB_URI=<your-mongo-uri> 
+CLOUDINARY_CLOUD_NAME=<cloud-name> 
+CLOUDINARY_API_KEY=<api-key> 
+CLOUDINARY_API_SECRET=<api-secret> 
+CLERK_SECRET_KEY=<your-clerk-secret> 
+CLERK_PUBLISHABLE_KEY=<your-clerk-publishable-key>
+```
+
+
+##### 4. Run the App 
+```
+npm run dev
+```
+
+Backend and frontend will run in monorepo-style within the same Next.js app structure.  
+
+
+##### 🙌 A Note from the Developer 
+This entire project was built from scratch, without using any AI for development help — as an intentional exercise to practice full-stack production-grade design. Hope you like it! 
+
+Also check out my whiteboard application that I built independently too! 😄  
+
+``` 
+https://white-board-web-application.vercel.app  
+```
+
+
+
+ 
+
+   
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
