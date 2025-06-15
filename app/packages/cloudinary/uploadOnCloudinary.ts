@@ -1,31 +1,20 @@
-// lib/cloudinary.ts
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
-
-console.log("Cloudinary configuration:", {
-  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-  apiKey: process.env.CLOUDINARY_API_KEY,
-  apiSecret: process.env.CLOUDINARY_API_SECRET,
-});
+// packages/cloudinary/uploadOnCloudinary.ts
+import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
-
-
-export const uploadOnCloudinary = async (localFilePath: string) => {
-  try {
-    const result = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "auto"
-    });
-    fs.unlinkSync(localFilePath); 
-    return result;
-  } catch (err) {
-    fs.unlinkSync(localFilePath); 
-    console.error("Cloudinary upload error:", err);
-    return null;
-  }
-};
+export async function uploadOnCloudinary(buffer: Buffer, filename: string) {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { public_id: filename, resource_type: "auto" },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    ).end(buffer); // Send buffer directly
+  });
+}
