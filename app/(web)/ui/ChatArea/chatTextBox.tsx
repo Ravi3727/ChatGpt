@@ -338,7 +338,7 @@ function ChatTextBox() {
                     </div>
 
                     {showAppsMenu && (
-                      <div className="absolute left:48 md:bottom-0 md:left-64 md:top-0 bg-[#353535] text-white 
+                      <div className="absolute left:48 md:bottom-0 md:left-64 -md:top-0 bg-[#353535] text-white 
                       rounded-2xl p-1 md:p-2 shadow-xl w-60 md:w-72 z-50">
                         <div className="hover:bg-hoverEffect p-1 md:p-2 rounded-lg cursor-pointer text-sm">
                           <div className='flex items-center gap-1 md:gap-2'>
