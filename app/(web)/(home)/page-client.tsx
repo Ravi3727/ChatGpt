@@ -13,7 +13,7 @@ function HomePageClient() {
   const [showIconView, setShowIconView] = useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
 
@@ -35,7 +35,7 @@ function HomePageClient() {
   const value = { isOpen, toggleSidebar };
 
   return (
-    <div className='w-full max-h-[100vh] md:min-h-screen overflow-hidden flex transition-all duration-300 ease-in-out'>
+    <div className='w-full max-h-[100vh] md:min-h-screen  overflow-hidden flex transition-all duration-300 ease-in-out'>
       <SideBarAnimation.Provider value={value}>
 
         {/* Sidebar Container */}
@@ -87,7 +87,7 @@ function HomePageClient() {
         {/* HomePage Component */}
 
         {!isMobile  ? <div
-          className='transition-all duration-300 ease-in-out bg-customDark'
+          className='transition-all  duration-300 ease-in-out bg-customDark'
           style={{
             width: isOpen ? 'calc(100% - 16rem)' : 'calc(100% - 4.5rem)',
           }}
@@ -97,7 +97,7 @@ function HomePageClient() {
         : (
           <div>
             <div
-              className='max-w-screen max-h-screen overflow-auto bg-customDark'
+              className='max-w-screen max-h-screen overflow-y-hidden bg-customDark'
             >
               <HomePage />
             </div>

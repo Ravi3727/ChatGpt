@@ -1,10 +1,17 @@
 'use client'
-import { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useState, Dispatch, SetStateAction } from 'react'
 
-export const EditChats = createContext({
+type EditChatsContextType = {
+  editingChatId: string | null;
+  setEditingChatId: Dispatch<SetStateAction<string | null>>;
+};
+
+const defaultContext: EditChatsContextType = {
   editingChatId: null,
-  setEditingChatId: (id: string | null) => {},
-})
+  setEditingChatId: () => {},
+};
+
+export const EditChats = createContext<EditChatsContextType>(defaultContext);
 
 export const useEditChats = () => useContext(EditChats);
 

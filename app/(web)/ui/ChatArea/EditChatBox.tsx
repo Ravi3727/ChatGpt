@@ -7,6 +7,17 @@ import { useUser } from '@clerk/nextjs';
 import { generate, generateTitle } from "./generateResponse";
 import { readStreamableValue } from 'ai/rsc';
 
+export type ChatType = {
+  _id: string;
+  question: string;
+  answer: string;
+  fileUrls?: string;
+};
+
+export type ChatContextType = {
+  chats: ChatType[];
+  setChats: React.Dispatch<React.SetStateAction<ChatType[]>>;
+};
 
 
 function EditChatBox({
@@ -20,13 +31,14 @@ function EditChatBox({
   chatId: string;
   handleChatId: (chatId: string | null) => void;
 }) {
-  const { chats, setChats }: any = useContext(ChatContext);
+
+  const { chats, setChats } = useContext(ChatContext);
   const [input, setInput] = useState(question || '');
   const textareaRef = useRef(null);
   const { isSignedIn, user } = useUser();
   const [loading, setLoading] = useState(false);
 
-    console.log("data", messageId, chatId, question, input, chats);
+  // console.log("data", messageId, chatId, question, input, chats);
   const handleSend = async () => {
     if (!input.trim() || !isSignedIn) return;
 
@@ -37,13 +49,19 @@ function EditChatBox({
     }
 
     setLoading(true);
-
+    type ChatMessageSys = {
+      role: 'user' | 'assistant';
+      content: string;
+    };
     try {
-      // Prepare context
-      const contextMessages = chats.flatMap((chat: any) => [
+
+      const contextMessages: ChatMessageSys[] = chats.flatMap((chat): ChatMessageSys[] => [
+
         { role: 'user', content: chat.question },
-        { role: 'assistant', content: chat.answer || chat.answers },
+        { role: 'assistant', content: chat.answer },
       ]);
+
+
       contextMessages.push({ role: 'user', content: input });
 
       // 🧠 Generate new answer
@@ -53,27 +71,21 @@ function EditChatBox({
       for await (const delta of readStreamableValue(output)) {
         generatedAnswer += delta;
       }
-
-      // 🧠 Generate new title
       const { text: generatedTitle } = await generateTitle(input);
 
-
-      // 🧩 Construct updated chat object
       const updatedChat = {
         _id: messageId,
         question: input,
-        answer: generatedAnswer,
-      };
+        answer: generatedAnswer
+      }
 
-      // 🔁 Update chats state
-      const updatedChats = chats.map((chat: any) =>
+      const updatedChats = chats.map((chat) =>
         chat._id === messageId ? updatedChat : chat
       );
       setChats(updatedChats);
 
 
 
-      //  Update backend
       const res = await axios.patch('/api/editChat', {
         chatId,
         messageId,
@@ -89,7 +101,6 @@ function EditChatBox({
         console.log('Chat updated successfully in backend');
       }
 
-      // 🧠 Update chatsMap in localStorage
       const chatsMapRaw = localStorage.getItem('chatsMap');
       const chatsMap = chatsMapRaw ? JSON.parse(chatsMapRaw) : {};
       chatsMap[chatId] = updatedChats;

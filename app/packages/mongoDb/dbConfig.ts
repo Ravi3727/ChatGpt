@@ -18,10 +18,10 @@ export async function dbConnect(): Promise<void> {
         connection.isConnected = DB.connections[0].readyState
 
         console.log("DB connection established");
-
+        
     } catch (error) {
-        //@ts-ignore
-        console.log("databse connection failed ", + error.message);
+        console.log("databse connection failed ",error);
+
         process.exit(1);
     }
 }

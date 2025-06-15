@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import ToogleIcon from "@/app/svg/toogleSvg"
 import ChatGptSvg from '@/app/svg/chatGptSvg'
 import NewChatSvg from '@/app/svg/newChatSvg'

@@ -21,27 +21,30 @@ import { useEditChats } from './EditChatsContext'
 import { generate, generateTitle, imageDataChat } from "./generateResponse";
 import { readStreamableValue } from 'ai/rsc';
 import { useRouter } from 'next/navigation';
-import { set } from 'mongoose'
-// import { uploadOnCloudinary } from  '@/app/packages/cloudinary/uploadOnCloudinary';
-// Allow streaming responses up to 30 seconds
+import Image from 'next/image'
+
+
+
 
 function ChatTextBox() {
   const router = useRouter();
-  const { chats, setChats }: any = useContext(ChatContext);
+  const { chats, setChats } = useContext(ChatContext);
   const [input, setInput] = useState('');
   const [showTools, setShowTools] = useState(false);
-  const textareaRef = useRef(null);
-  const toolsRef = useRef(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const toolsRef = useRef<HTMLDivElement>(null);
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [showAppsMenu, setShowAppsMenu] = useState(false);
   const { isSignedIn, user } = useUser();
+  const [loading, setLoading] = useState(false);
   const params = useParams();
   const chatId = params.chatId;
   const { editingChatId, setEditingChatId } = useEditChats();
-  const [generation, setGeneration] = useState<string>('');
+  // const [setGeneration] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
 
   const handleSend = async () => {
+    setLoading(true);
     if (!input.trim()) return;
 
     if (!isSignedIn) {
@@ -55,34 +58,46 @@ function ChatTextBox() {
       return;
     }
 
-    let currentChatId = chatId || 'new';
+    type ChatMessage = {
+      question: string;
+      answer: string;
+    };
+    const currentChatId = String(chatId || 'new');
 
     const chatsMapRaw = localStorage.getItem('chatsMap');
     const chatsMap = chatsMapRaw ? JSON.parse(chatsMapRaw) : {};
-    const currentChatHistory = chatsMap[currentChatId] || [];
+    const currentChatHistory: ChatMessage[] = chatsMap[currentChatId] || [];
 
-    const contextMessages = currentChatHistory.flatMap(chat => [
+    type ChatMessageSys = {
+      role: 'user' | 'assistant';
+      content: string;
+    };
+    const contextMessages: ChatMessageSys[] = currentChatHistory.flatMap((chat): ChatMessageSys[] => [
       { role: 'user', content: chat.question },
       { role: 'assistant', content: chat.answer },
     ]);
+
     contextMessages.push({ role: 'user', content: input });
 
-    setGeneration('');
+
+    // setGeneration("");
     let generatedAnswer = '';
 
     try {
 
       // const question = `Explain this image in 3 words `;
       const formData = new FormData();
-      files.forEach((file, index) => {
+      files.forEach((file) => {
         formData.append(`file`, file);
       });
       setFiles([]);
 
-
       const { text } = await generateTitle(input);
       let ImageURL;
-      if (formData) {
+     
+      const isFilePresent = formData.get("file") as File;
+      console.log("isFilePresent", isFilePresent);
+      if (isFilePresent && isFilePresent.size > 0) {
         const res = await axios.post('/api/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -95,7 +110,6 @@ function ChatTextBox() {
         const { output } = await generate(contextMessages);
         for await (const delta of readStreamableValue(output)) {
           generatedAnswer += delta;
-          setGeneration(current => current + delta);
         }
       }
 
@@ -122,7 +136,7 @@ function ChatTextBox() {
         localStorage.setItem('chatsMap', JSON.stringify(chatsMap));
         setChats(fullChatData);
         setInput('');
-
+        setLoading(false);
         router.push(`/${finalChatId}`);
 
         return;
@@ -146,18 +160,23 @@ function ChatTextBox() {
         localStorage.setItem('chatsMap', JSON.stringify(chatsMap));
         setChats(updatedChatList);
         setInput('');
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error during generation or saving:", error);
+        setLoading(false);
     }
   };
 
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('chatsMap') || '{}');
-    const loadedChats = stored[chatId] || [];
-    setChats(loadedChats);
-  }, [chatId]);
+    const chatIdStr = Array.isArray(chatId) ? chatId[0] : chatId || '';
+    const loadedChats = stored[chatIdStr] || [];
+    setChats(Array.isArray(loadedChats) ? loadedChats : []);
+  }, [chatId, setChats]);
+
+
 
 
   useEffect(() => {
@@ -171,8 +190,8 @@ function ChatTextBox() {
   }, [input]);
 
   useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (toolsRef.current && !toolsRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (toolsRef.current && !toolsRef.current.contains(event.target as Node)) {
         setShowTools(false);
       }
     };
@@ -182,10 +201,10 @@ function ChatTextBox() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+
+      setFiles((prev) => [...prev, ...Array.from(e.target.files as  FileList)]);
     }
   };
-
   const isImage = (file: File) => file.type.startsWith("image/");
 
   const removeFile = (index: number) => {
@@ -207,11 +226,13 @@ function ChatTextBox() {
                 >
                   clear
                 </button>
-                <img
-                  src={URL.createObjectURL(file)}
+
+                <Image src={URL.createObjectURL(file)}
 
                   alt={file.name}
                   className="object-cover w-full h-full"
+                  width={64}
+                  height={64}
                 />
               </div>
             ) : (
@@ -250,7 +271,7 @@ function ChatTextBox() {
                   setInput('');
                 }
               }}
-              placeholder="Ask anything"
+              placeholder={`${loading ? "Good things take time — especially for a billion users! 😁" : "Ask anything"}`}
               className="w-full max-h-[50px] md:max-h-[200px] md:min-h-10 p-1 md:p-2 overflow-y-auto resize-none bg-transparent outline-none text-white placeholder-gray-400 text-md"
             />
           </div>
@@ -303,7 +324,7 @@ function ChatTextBox() {
                           type="file"
                           accept="image/*, .pdf, .doc, .docx, .txt, .csv, .xlsx, .pptx, .zip"
                           multiple
-                          onChange={handleFileChange} 
+                          onChange={handleFileChange}
                           className="hidden"
                         />
 
@@ -408,7 +429,7 @@ function ChatTextBox() {
   );
 }
 
-const ToolItem = ({ label, badge, icon: Icon }: any) => (
+const ToolItem = ({ label, badge, icon: Icon }: { label: string, badge?: string, icon: React.ComponentType<{ className?: string }> }) => (
   <div className="flex justify-between items-center hover:bg-hoverEffect p-1 md:p-2 rounded-lg cursor-pointer text-sm">
     <div className="flex items-center gap-2">
       {Icon && <Icon className="w-4 h-4" />}

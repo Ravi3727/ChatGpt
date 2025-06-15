@@ -1,12 +1,9 @@
 // app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { upload } from "@/app/packages/cloudinary/multer";
 import { uploadOnCloudinary } from "@/app/packages/cloudinary/uploadOnCloudinary";
-import { promisify } from "util";
+import fs from "fs";
 
 // Promisify multer's single upload middleware
-const runMiddleware = promisify(upload.single("file"));
-
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const file: File | null = formData.get("file") as File;
@@ -20,7 +17,6 @@ export async function POST(req: NextRequest) {
   const tempPath = `./public/temp/${filename}`;
 
   // Write buffer to temp file
-  const fs = require("fs");
   fs.writeFileSync(tempPath, buffer);
 
   const uploadResult = await uploadOnCloudinary(tempPath);

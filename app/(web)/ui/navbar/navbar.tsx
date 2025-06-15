@@ -15,9 +15,9 @@ import DownArrowSvg from '@/app/svg/downArrowSvg'
 function Navbar() {
     const [showDropdown, setShowDropdown] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
-    const [isMobile, setIsMobile] = React.useState();
+    const [isMobile, setIsMobile] = useState<boolean>(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 768);
         };
@@ -137,7 +137,7 @@ function Navbar() {
                                 <div className=" top-5 -right-36 w-[19rem] absolute hidden group-hover:block bg-black text-white text-[12px] px-4 py-2 rounded shadow-md">
                                     <div className='flex flex-col justify-center items-center'>
                                         <div>
-                                            ChatGpt's out of space for saved memories.
+                                            ChatGpt&apos;s out of space for saved memories.
                                         </div>
                                         <div>
                                             <span className='underline'> Manage saved memories</span> to create more space.

@@ -4,10 +4,10 @@ import { NextResponse } from "next/server";
 import Chat from "@/app/packages/mongoDb/schema/chat";
 
 // ✅ GET chat by chatId
-export async function GET(request: Request, { params }: { params: { chatId: string } }) {
+export async function GET(request: Request, {params}: {params: Promise<{ chatId: string }>}) {
   try {
     await dbConnect();
-    const chatId  = params.chatId;
+    const {chatId } = await params;
 
     if (!chatId) {
       return NextResponse.json({ error: "Chat ID is required" }, { status: 400 });

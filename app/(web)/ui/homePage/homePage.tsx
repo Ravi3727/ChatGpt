@@ -5,10 +5,24 @@ import DisplayChats from '../ChatArea/displayChats'
 import ChatTextBox from '../ChatArea/chatTextBox'
 import { useParams } from 'next/navigation'
 
-export const ChatContext = createContext();
+export type ChatType = {
+  _id: string;
+  question: string;
+  answer: string;
+  fileUrls?: string;
+};
+
+export type ChatContextType = {
+  chats: ChatType[];
+  setChats: React.Dispatch<React.SetStateAction<ChatType[]>>;
+};
+export const ChatContext = createContext<ChatContextType>({
+  chats: [],
+  setChats: () => { },
+});
 
 function HomePage() {
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState<ChatType[]>([]);
   const params = useParams();
 
   const [isMobile, setIsMobile] = React.useState(false);

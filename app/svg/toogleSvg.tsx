@@ -2,7 +2,11 @@
 import React, { useContext } from 'react'
 import { SideBarAnimation } from '../(web)/(home)/page-client'
 function ToogleIcon() {
-    const { toggleSidebar } = useContext(SideBarAnimation);
+    const context = useContext(SideBarAnimation);
+    if (!context) {
+        throw new Error('SideBarAnimation context is undefined');
+    }
+    const { toggleSidebar } = context;
   return (
     <div onClick={toggleSidebar}>
          
