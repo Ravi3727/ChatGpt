@@ -106,9 +106,9 @@ function HomePageClient() {
         ) : (
           /* Desktop Sidebar */
           <div
-            className="transition-all duration-300 ease-in-out relative overflow-hidden flex-shrink-0"
+            className="transition-all duration-300 px-2  ease-in-out relative overflow-hidden flex-shrink-0"
             style={{
-              width: isOpen ? "16rem" : "3rem",
+              width: isOpen ? "16rem" : "4.5rem",
               backgroundColor: isOpen ? "var(--sidebar-bg-color, #1a1a1a)" : "var(--background-bg-color, #212121)",
             }}
           >
@@ -122,7 +122,7 @@ function HomePageClient() {
 
             {/* Icon View */}
             <div
-              className={`absolute flex bg-red-400 items-center py-3 space-y-4  md:space-y-0 transition-opacity duration-300 ease-in-out ${showIconView ? "opacity-100" : "opacity-0 pointer-events-none"
+              className={`absolute flex items-center py-3 space-y-4 md:space-y-0 transition-opacity duration-300 ease-in-out ${showIconView ? "opacity-100" : "opacity-0 pointer-events-none"
                 }`}
             >
               <button onClick={toggleSidebar} className="text-white p-2">
