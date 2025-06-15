@@ -148,7 +148,7 @@ function Navbar() {
                         </div>
 
                         {/* Auth Buttons */}
-                        <div className='flex w-72 md:w-38 justify-between py-2 px-1 items-center'>
+                        <div className='flex w-72 md:w-48 justify-between py-2 px-1 items-center'>
                             <div className='flex justify-between items-center rounded-3xl hover:cursor-pointer px-3 py-2 w-22 hover:bg-chatBoxColor'>
                                 <div className='text-white font-thin text-sm'>
                                     <Upload size={20} />
@@ -161,7 +161,7 @@ function Navbar() {
                                 <SignedOut>
                                     <div className=' '>
                                         <SignInButton >
-                                            <button className='bg-white text-black rounded-2xl px-2 py-1 hover:cursor-pointer'>
+                                            <button className='bg-white text-black rounded-2xl md:w-20 px-2 py-1 hover:cursor-pointer'>
                                                 Log In
                                             </button>
                                         </SignInButton>
