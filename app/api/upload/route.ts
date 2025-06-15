@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadOnCloudinary } from "@/app/packages/cloudinary/uploadOnCloudinary";
 
+
+
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const file: File | null = formData.get("file") as File;
@@ -14,6 +16,7 @@ export async function POST(req: NextRequest) {
   const filename = `${file.name.split(".")[0]}-${Date.now()}`;
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uploadResult: any = await uploadOnCloudinary(buffer, filename);
 
     return NextResponse.json({
