@@ -4,6 +4,7 @@ import HomePage from '../ui/homePage/homePage'
 import Sidebar from '../ui/homePage/sidebar'
 import ToogleIcon from '../../svg/toogleSvg'
 import NewChatSvg from '../../svg/newChatSvg'
+import Link from 'next/link';
 
 export const SideBarAnimation = createContext<{ isOpen: boolean; toggleSidebar: () => void } | undefined>(undefined);
 
@@ -79,7 +80,9 @@ function HomePageClient() {
                   }`}
               >
                 <ToogleIcon />
-                <NewChatSvg />
+               <Link href='/'>
+                  <NewChatSvg />
+                </Link>
               </div>
             </div>
           
