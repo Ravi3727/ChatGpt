@@ -1,21 +1,19 @@
-import React from 'react'
-import ChatFeatures from '../sidebar/chatFeatures'
-import PreviousChats from '../sidebar/previousChats'
+import ChatFeatures from "../sidebar/chatFeatures"
+import PreviousChats from "../sidebar/previousChats"
 
 function Sidebar() {
-
-
   return (
-    <>
-      <div className='text-white flex flex-col '>
-        <div>
-          <ChatFeatures />
-        </div>
-        <div className=''>
-          <PreviousChats />
-        </div>
+    <div className="h-full flex flex-col text-white ">
+      {/* Top Section */}
+      <div className="flex-shrink-0">
+        <ChatFeatures />
       </div>
-    </>
+
+      {/* Scrollable Chat History */}
+      <div className="flex-1 min-h-0">
+        <PreviousChats />
+      </div>
+    </div>
   )
 }
 

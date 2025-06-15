@@ -12,6 +12,7 @@ export async function GET(request: NextRequest, {params}: {params: Promise<{ use
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
     }
     const chats = await Chat.find({ userId }).sort({ createdAt: -1 });
+    // console.log("Fetched chats for userId:", userId, "Chats count:", chats.length);
     return NextResponse.json({ chats }, { status: 200 });
   } catch (error) {
     console.error("Error fetching chats by userId:", error);

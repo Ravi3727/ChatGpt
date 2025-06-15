@@ -1,123 +1,147 @@
-'use client'
-import React, { createContext, useState, useEffect } from 'react';
-import HomePage from '../ui/homePage/homePage'
-import Sidebar from '../ui/homePage/sidebar'
-import ToogleIcon from '../../svg/toogleSvg'
-import NewChatSvg from '../../svg/newChatSvg'
-import Link from 'next/link';
-
-export const SideBarAnimation = createContext<{ isOpen: boolean; toggleSidebar: () => void } | undefined>(undefined);
+"use client"
+import React, { createContext, useState, useEffect } from "react"
+import HomePage from "../ui/homePage/homePage"
+import Sidebar from "../ui/homePage/sidebar"
+import ToogleIcon from "../../svg/toogleSvg"
+import NewChatSvg from "../../svg/newChatSvg"
+import Link from "next/link"
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
+export const SideBarAnimation = createContext<{ isOpen: boolean; toggleSidebar: () => void } | undefined>(undefined)
 
 function HomePageClient() {
-  const [isOpen, setIsOpen] = useState(true);
-  const [showFullSidebar, setShowFullSidebar] = useState(true);
-  const [showIconView, setShowIconView] = useState(false);
-  const [isMobile, setIsMobile] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false)
+  const [showFullSidebar, setShowFullSidebar] = useState(false)
+  const [showIconView, setShowIconView] = useState(false)
+  const [isMobile, setIsMobile] = React.useState(false)
+  const [isTablet, setIsTablet] = React.useState(false)
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const width = window.innerWidth
+      setIsMobile(width < 768)
+      setIsTablet(width >= 768 && width < 1024)
 
-    };
-    handleResize();
-  }, []);
+      // Auto-open sidebar on desktop
+      if (width >= 1024) {
+        setIsOpen(true)
+        setShowFullSidebar(true)
+        setShowIconView(false)
+      } else {
+        setIsOpen(false)
+        setShowFullSidebar(false)
+        setShowIconView(false)
+      }
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   const toggleSidebar = () => {
-    if (isOpen) {
-      setShowFullSidebar(false);
-      setTimeout(() => setShowIconView(true), 300);
+    if (isMobile || isTablet) {
+      // Mobile/tablet: toggle overlay
+      setIsOpen(!isOpen)
+      setShowFullSidebar(!isOpen)
     } else {
-      setShowIconView(false);
-      setTimeout(() => setShowFullSidebar(true), 300);
+      // Desktop: toggle between full and icon view
+      if (isOpen) {
+        setShowFullSidebar(false)
+        setTimeout(() => setShowIconView(true), 200)
+      } else {
+        setShowIconView(false)
+        setTimeout(() => setShowFullSidebar(true), 200)
+      }
+      setIsOpen(!isOpen)
     }
-    setIsOpen(!isOpen);
-  };
+  }
 
-  const value = { isOpen, toggleSidebar };
+  const value = { isOpen, toggleSidebar }
 
   return (
-    <div className='w-full max-h-[100vh] md:min-h-screen  overflow-hidden flex transition-all duration-300 ease-in-out'>
+    <div className="w-full h-screen overflow-hidden flex relative">
       <SideBarAnimation.Provider value={value}>
-
-
-
-        {/* Sidebar Container */}
-
-        {
-          isMobile ? (
-            <>
-              <div className='fixed top-0 left-0 z-50 md:w-12 md:h-12 py-4 md:py-0 bg-customDark flex items-center justify-between px-4'>
-                <ToogleIcon /> 
-              </div>
-
-              <div
-                className={`absolute inset-0 z-50 w-56 bg-customDark transition-opacity duration-300 ease-in-out ${showFullSidebar ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                  }`}
-              >
-                <Sidebar />
-              </div>
-            </>
-
-          ) : (
-            <div
-              className='transition-all duration-300 ease-in-out  relative overflow-hidden'
-              style={{
-                width: isOpen ? '16rem' : '4.5rem',
-                backgroundColor: isOpen ? 'var(--sidebar-bg-color, #1a1a1a)' : 'var(--background-bg-color, #212121)', // Use a CSS variable or fallback color
-              }}
-            >
-              {/* Full Sidebar */}
-              <div
-                className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${(showFullSidebar && !isMobile) ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                  }`}
-              >
-                <Sidebar />
-              </div>
-
-              {/* Icon View */}
-              <div
-                className={`absolute inset-0  flex items-start justify-between py-5 md:py-3 ml-3 mt-1 text-white transition-opacity duration-300 ease-in-out ${showIconView ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                  }`}
-              >
-                <ToogleIcon />
-               <Link href='/'>
-                  <NewChatSvg />
-                </Link>
-              </div>
-            </div>
-          
-        )}
-
-
-        {/* HomePage Component */}
-
-        {!isMobile  ? <div
-          className='transition-all  duration-300 ease-in-out bg-customDark'
-          style={{
-            width: isOpen ? 'calc(100% - 16rem)' : 'calc(100% - 4.5rem)',
-          }}
-        >
-          <HomePage />
-        </div>
-        : (
-          <div>
-            <div
-              className='max-w-screen max-h-screen overflow-y-hidden bg-customDark'
-            >
-              <HomePage />
+        {/* Mobile Header */}
+        {isMobile && (
+          <div className="fixed top-0 left-0 right-0 z-40 h-12 bg-customDark flex items-center justify-between px-4 ">
+            <button onClick={toggleSidebar} className="p-1 text-gray-400">
+              <ToogleIcon />
+            </button>
+            {/* <Link href="/" className="p-1">
+              <NewChatSvg />
+            </Link> */}
+            <div className="left-0 flex justify-end  w-full">
+              <SignedOut>
+                <SignInButton>
+                  <button className="bg-white  text-black rounded-full px-4 py-1.5 text-sm font-medium hover:bg-gray-100 transition-colors">
+                    Log in
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8",
+                    },
+                  }}
+                />
+              </SignedIn>
             </div>
           </div>
-        )  
+        )}
 
+        {/* Sidebar */}
+        {isMobile || isTablet ? (
+          <>
+            {/* Mobile/Tablet Overlay */}
+            {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={toggleSidebar} />}
+            <div
+              className={`fixed top-0 left-0 h-full w-64 bg-customDark transform transition-transform duration-300 ease-in-out z-50 ${isOpen ? "translate-x-0" : "-translate-x-full"
+                }`}
+            >
+              <Sidebar />
+            </div>
+          </>
+        ) : (
+          /* Desktop Sidebar */
+          <div
+            className="transition-all duration-300 ease-in-out relative overflow-hidden flex-shrink-0"
+            style={{
+              width: isOpen ? "16rem" : "3rem",
+              backgroundColor: isOpen ? "var(--sidebar-bg-color, #1a1a1a)" : "var(--background-bg-color, #212121)",
+            }}
+          >
+            {/* Full Sidebar */}
+            <div
+              className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${showFullSidebar ? "opacity-100" : "opacity-0 pointer-events-none"
+                }`}
+            >
+              <Sidebar />
+            </div>
 
-        
-      }
-        
+            {/* Icon View */}
+            <div
+              className={`absolute flex bg-red-400 items-center py-3 space-y-4  md:space-y-0 transition-opacity duration-300 ease-in-out ${showIconView ? "opacity-100" : "opacity-0 pointer-events-none"
+                }`}
+            >
+              <button onClick={toggleSidebar} className="text-white p-2">
+                <ToogleIcon />
+              </button>
+              <Link href="/" className="text-white p-1">
+                <NewChatSvg />
+              </Link>
+            </div>
+          </div>
+        )}
 
+        {/* Main Content */}
+        <div className={`flex-1 flex flex-col bg-customDark ${isMobile ? "pt-12" : ""}`}>
+          <HomePage />
+        </div>
       </SideBarAnimation.Provider>
-      
     </div>
-  );
+  )
 }
 
-export default HomePageClient;
+export default HomePageClient
