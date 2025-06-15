@@ -38,6 +38,8 @@ function HomePageClient() {
     <div className='w-full max-h-[100vh] md:min-h-screen  overflow-hidden flex transition-all duration-300 ease-in-out'>
       <SideBarAnimation.Provider value={value}>
 
+
+
         {/* Sidebar Container */}
 
         {
@@ -103,6 +105,9 @@ function HomePageClient() {
             </div>
           </div>
         )  
+
+
+        
       }
         
 

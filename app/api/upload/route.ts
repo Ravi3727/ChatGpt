@@ -1,9 +1,8 @@
-// app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { uploadOnCloudinary } from "@/app/packages/cloudinary/uploadOnCloudinary";
 import fs from "fs";
+import path from "path";
 
-// Promisify multer's single upload middleware
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const file: File | null = formData.get("file") as File;
@@ -14,9 +13,14 @@ export async function POST(req: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const filename = `${file.name.split(".")[0]}-${Date.now()}`;
-  const tempPath = `./public/temp/${filename}`;
+  
+  const tempDir = path.join(process.cwd(), "public", "temp");
+  const tempPath = path.join(tempDir, filename);
 
-  // Write buffer to temp file
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+
   fs.writeFileSync(tempPath, buffer);
 
   const uploadResult = await uploadOnCloudinary(tempPath);
