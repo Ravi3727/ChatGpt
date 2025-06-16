@@ -7,8 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
     const { title, userId, question, chatId, answer,fileUrls } = await request.json();
-    // console.log("Received data:", { title, userId, question, chatId, answer });
-    // Validate inputs  
+     
     console.log("Received data: backend ", fileUrls );
     if (!userId || !question || !answer) {
       return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400 });
@@ -27,7 +26,6 @@ export async function POST(request: NextRequest) {
 
     const chatData = parsedData.data;
     // console.log("Parsed chat data:", chatData);
-    // If chatId is "new" or not provided, create a new chat
     if (!chatId || chatId === 'new' || chatId === undefined) {
 
       const newChat = await Chat.create({
@@ -42,7 +40,6 @@ export async function POST(request: NextRequest) {
     const existingChat = await Chat.findById(chatId);
 
     if (!existingChat) {
-      // If chatId was given but no chat exists, create a new one
 
       const newChat = await Chat.create({
         userId,
@@ -52,7 +49,6 @@ export async function POST(request: NextRequest) {
       return new Response(JSON.stringify({ newChat }), { status: 201 });
     }
 
-    // If chat exists, push new chat data
     const updatedChats  = await Chat.findByIdAndUpdate(
       chatId,
       { $push: { chatData } },

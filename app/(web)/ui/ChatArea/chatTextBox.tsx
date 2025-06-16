@@ -19,7 +19,7 @@ import SendButtonArrowSvg from "@/app/svg/sendButtonArrowSvg"
 import { useUser } from "@clerk/nextjs"
 import { useParams } from "next/navigation"
 import { useEditChats } from "./EditChatsContext"
-import { generate, generateTitle, imageDataChat } from "./generateResponse"
+import { generate, generateTitle, imageDataChat,fileDataChat } from "./generateResponse"
 import { readStreamableValue } from "ai/rsc"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -105,6 +105,15 @@ function ChatTextBox() {
           },
         })
         ImageURL = res.data.url
+        
+
+        const fileType = ImageURL.split('.').pop().split('?')[0]; // To also handle query params
+        console.log("File Type:", fileType === "pdf")
+        if (fileType === "pdf") {
+          const fileData = await fileDataChat(res.data.url, input)
+          console.log("File Data Response:", fileData)
+          // generatedAnswer = fileData;
+        }
         const result = await imageDataChat(res.data.url, input)
         generatedAnswer = result
       } else {

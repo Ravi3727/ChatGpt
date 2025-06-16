@@ -1,7 +1,7 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
-import { Upload, CircleAlert } from "lucide-react"
+import { Upload } from "lucide-react"
 import sparkle from "@/public/star.png"
 import concept from "@/public/conceptWhite.svg"
 import Image from "next/image"
@@ -85,7 +85,7 @@ function Navbar() {
       </div>
 
       {/* Center Info */}
-      <div className="hidden lg:flex items-center space-x-2 text-sm text-gray-400">
+      {/* <div className="hidden lg:flex items-center space-x-2 text-sm text-gray-400">
         <span>Memory full</span>
         <div className="relative group">
           <CircleAlert size={16} />
@@ -94,7 +94,7 @@ function Navbar() {
             <span className="underline cursor-pointer">Manage saved memories</span> to create more space.
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Right Actions */}
       <div className="flex items-center space-x-3">

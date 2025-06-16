@@ -3,6 +3,7 @@
 import { streamText,generateText } from 'ai';
 import { google } from "@ai-sdk/google";
 import { createStreamableValue } from 'ai/rsc';
+import { readFileSync } from 'fs';
 
 type ChatMessage = {
   role: 'user' | 'assistant';
@@ -69,5 +70,36 @@ export const imageDataChat = async (
   });
 
   // console.log("Image Data Response:", text);
+  return text;
+};
+
+
+
+
+export const fileDataChat = async (
+  fileUrl: string,
+  question: string
+) => {
+  
+  // console.log("Image URL:", imageUrl);
+  // console.log("Question:", question);
+  const { text } = await generateText({
+    model: google('models/gemini-2.0-flash-exp'),
+    system:question,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "file",
+            data: readFileSync(fileUrl),
+            mimeType: "application/pdf",
+          },
+        ],
+      },
+    ],
+  });
+
+  console.log("Image Data Response:", text);
   return text;
 };
