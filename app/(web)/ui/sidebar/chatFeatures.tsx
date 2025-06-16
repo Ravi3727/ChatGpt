@@ -4,8 +4,13 @@ import NewChatSvg from "@/app/svg/newChatSvg"
 import SearchSvg from "@/app/svg/searchSvg"
 import LibrarySvg from "@/app/svg/librarySvg"
 import Link from "next/link"
+import { SideBarAnimation } from '../../(home)/page-client'
+import { useContext } from "react"
 
 function ChatFeatures() {
+  const context = useContext(SideBarAnimation);
+  const toggleLibrary = context?.toggleLibrary ?? (() => {});
+  const revrseToggleLibrary = context?.revrseToggleLibrary ?? (() => {});
   return (
     <div className="w-full px-1 py-2 space-y-2">
       {/* Header */}
@@ -21,8 +26,8 @@ function ChatFeatures() {
       {/* Navigation Items */}
       <div className="">
         {/* New Chat */}
-        <Link href="/">
-          <div className="group flex items-center justify-between px-3 py-2 hover:bg-chatBoxColor rounded-xl transition-colors cursor-pointer">
+        
+          <div onClick={revrseToggleLibrary} className="group flex items-center justify-between px-3 py-2 hover:bg-chatBoxColor rounded-xl transition-colors cursor-pointer">
             <div className="flex items-center space-x-2">
               <NewChatSvg />
               <span className="text-[14px] font-extralight text-white">New chat</span>
@@ -33,7 +38,7 @@ function ChatFeatures() {
               <span>O</span>
             </div>
           </div>
-        </Link>
+        
 
         {/* Search Chats */}
         <div className="group flex items-center justify-between px-3 py-2 hover:bg-chatBoxColor rounded-xl transition-colors cursor-pointer">
@@ -48,12 +53,12 @@ function ChatFeatures() {
         </div>
 
         {/* Library */}
-        <Link href="/library">
-          <div className="flex items-center space-x-2 px-3 py-2 hover:bg-chatBoxColor rounded-xl transition-colors cursor-pointer">
-            <LibrarySvg />
-            <span className="text-[14px] font-extralight">Library</span>
-          </div>
-        </Link>
+
+        <div onClick={toggleLibrary} className="flex items-center space-x-2 px-3 py-2 hover:bg-chatBoxColor rounded-xl transition-colors cursor-pointer">
+          <LibrarySvg />
+          <span className="text-[14px] font-extralight">Library</span>
+        </div>
+
       </div>
     </div>
   )

@@ -6,14 +6,25 @@ import ToogleIcon from "../../svg/toogleSvg"
 import NewChatSvg from "../../svg/newChatSvg"
 import Link from "next/link"
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
-export const SideBarAnimation = createContext<{ isOpen: boolean; toggleSidebar: () => void } | undefined>(undefined)
+import Library from "../library/page"
 
-function HomePageClient() {
+type SideBarContextType = {
+  isOpen: boolean;
+  toggleSidebar: () => void;
+  toggleLibrary: () => void;
+  revrseToggleLibrary?: () => void;
+};
+
+export const SideBarAnimation = createContext<SideBarContextType | undefined>(undefined);
+
+
+function HomePageClient() {  
   const [isOpen, setIsOpen] = useState(false)
   const [showFullSidebar, setShowFullSidebar] = useState(false)
   const [showIconView, setShowIconView] = useState(false)
   const [isMobile, setIsMobile] = React.useState(false)
   const [isTablet, setIsTablet] = React.useState(false)
+  const [showLibrary, setShowLibrary] = useState(false)
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,7 +67,17 @@ function HomePageClient() {
     }
   }
 
-  const value = { isOpen, toggleSidebar }
+
+  const toggleLibrary = () => {
+    setShowLibrary(true);
+    // console.log("Library toggled:", !showLibrary)
+  }
+
+  const revrseToggleLibrary = () => {
+    setShowLibrary(false);
+  }
+
+  const value = { isOpen, toggleSidebar, toggleLibrary, showLibrary, revrseToggleLibrary }
 
   return (
     <div className="w-full h-screen overflow-hidden flex relative">
@@ -137,7 +158,12 @@ function HomePageClient() {
 
         {/* Main Content */}
         <div className={`flex-1 flex flex-col bg-customDark ${isMobile ? "pt-12" : ""}`}>
-          <HomePage />
+          {
+            showLibrary ? <div className="flex-1 overflow-y-auto">
+              <Library />
+            </div>:
+            <HomePage />
+            }
         </div>
       </SideBarAnimation.Provider>
     </div>

@@ -24,7 +24,7 @@ export const ChatContext = createContext<ChatContextType>({
 function HomePage() {
   const [chats, setChats] = useState<ChatType[]>([])
   const params = useParams()
-  const [isMobile, setIsMobile] = React.useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -40,6 +40,7 @@ function HomePage() {
     if (Array.isArray(id)) id = id[0]
     localStorage.setItem("chatId", id)
   }, [params.chatId])
+
 
   const chatContextValue = useMemo(() => ({ chats, setChats }), [chats])
 

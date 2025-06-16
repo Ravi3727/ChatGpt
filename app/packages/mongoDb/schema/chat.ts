@@ -48,6 +48,6 @@ const ChatsSchema: Schema<Chats> = new mongoose.Schema({
     });
 
 
-const ChatsModel = (mongoose.models.Problem as mongoose.Model<Chats>) || mongoose.model<Chats>("Chat", ChatsSchema);
+const ChatsModel = (mongoose.models.Chat as mongoose.Model<Chats>) || mongoose.model<Chats>("Chat", ChatsSchema);
 
 export default ChatsModel;
