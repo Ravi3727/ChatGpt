@@ -1,12 +1,32 @@
+'use client';
 import { useUser } from '@clerk/nextjs';
 import axios from 'axios';
 import Image from 'next/image';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 function Library() {
+  const { user } = useUser();
   const [fileUrls, setFileUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const { user } = useUser();
+  useEffect(() => {
+    const fetchFiles = async () => {
+      if (!user) return;
+      setLoading(true);
+      try {
+        const response = await axios.get(`/api/getAllFiles/${user.id}`);
+        console.log('Files fetched:', response.data);
+        setFileUrls(response.data.fileUrls || []);
+      } catch (error) {
+        console.error('Error fetching files:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFiles();
+  }, [user]);
+
+
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -14,22 +34,7 @@ function Library() {
       </div>
     );
   }
-  const userId = user.id;
-  const fetchFiles = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`/api/getAllFiles/${userId}`);
-      console.log('Files fetched:', response.data);
-      setFileUrls(response.data.fileUrls || []);
-    } catch (error) {
-      console.error('Error fetching files:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-  React.useEffect(() => {
-    fetchFiles();
-  }, []);
+
   return (
     <div>
       <h1 className="text-2xl text-white font-semibold leading-8 text-center mt-10 ">Library</h1>
